@@ -1,0 +1,127 @@
+.history-container {
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    box-shadow: var(--box-shadow);
+  }
+  
+  .history-container h2 {
+    margin-bottom: 1.5rem;
+    color: var(--dark-color);
+  }
+  
+  .history-loading {
+    text-align: center;
+    padding: 2rem;
+    color: var(--dark-color);
+  }
+  
+  .history-error {
+    color: var(--danger-color);
+    padding: 1rem;
+    background-color: rgba(231, 76, 60, 0.1);
+    border-radius: var(--border-radius);
+    margin-bottom: 1rem;
+  }
+  
+  .no-history {
+    text-align: center;
+    padding: 2rem;
+    color: var(--dark-color);
+    background-color: var(--light-color);
+    border-radius: var(--border-radius);
+  }
+  
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .history-item {
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    transition: transform 0.2s;
+  }
+  
+  .history-item:hover {
+    transform: translateY(-3px);
+  }
+  
+  .history-item.deepfake {
+    border-left: 5px solid var(--danger-color);
+  }
+  
+  .history-item.authentic {
+    border-left: 5px solid var(--success-color);
+  }
+  
+  .history-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .history-item-header h3 {
+    font-size: 1.2rem;
+    color: var(--dark-color);
+  }
+  
+  .detection-date {
+    font-size: 0.9rem;
+    color: #777;
+  }
+  
+  .history-item-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+  
+  .history-result,
+  .history-probability,
+  .history-confidence {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .result-label,
+  .probability-label,
+  .confidence-label {
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: #555;
+  }
+  
+  .result-value {
+    font-weight: bold;
+    font-size: 1.1rem;
+  }
+  
+  .history-item.deepfake .result-value {
+    color: var(--danger-color);
+  }
+  
+  .history-item.authentic .result-value {
+    color: var(--success-color);
+  }
+  
+  .probability-value,
+  .confidence-value {
+    font-size: 1.1rem;
+  }
+  
+  @media (max-width: 768px) {
+    .history-item-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    
+    .detection-date {
+      margin-left: 0;
+    }
+  }
