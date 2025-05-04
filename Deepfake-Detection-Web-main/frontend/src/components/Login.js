@@ -69,7 +69,7 @@ const Login = () => {
       
       // Store user data
       localStorage.setItem('user', JSON.stringify(userData));
-      
+      console.log('User data:', userData);
       // Call success callback
       login(userData);
       

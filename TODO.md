@@ -12,12 +12,12 @@
 
 - []: create user's tab and integrate it with history tab. For admin the history tab will be use to see all history and history of some user's (log information, detection history, .....)
 
+- []: change the position of the feedback button
 
 
 
 
-
-
+- [Done]: save detection history after system gives prediction and modified if the user gives feedback
 - [Done]: add feedback and autoscroll feature for results window
 - [Done]: the detection window still appears after navigate to history or real time detection, even after log out fix this
 - [Done]: for frontend, restrict the uploaded videos to ~ 30-40 seconds, and adding waiting animations
