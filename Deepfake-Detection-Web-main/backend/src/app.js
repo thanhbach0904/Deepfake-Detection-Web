@@ -24,17 +24,18 @@
  */
 const express = require('express');
 const dotenv = require('dotenv');
+// Load env vars -include before adidng anything new
+dotenv.config({ path: '../../.env' });
 const cookieParser = require('cookie-parser'); // For handling cookies
 const cors = require('cors'); // For handling CORS
 const authRoutes = require('./routes/authRoutes'); // Import routes
 const roleRoutes = require('./routes/roleRoutes'); // Import role routes
 const inferRoutes = require('./routes/inferRoutes')
-const User = require('./models/userModel'); // Import User model
+const profileRoutes = require('./routes/profileRoutes');
+const pinterestRoutes = require('./routes/pinterestRoutes');
 
-// Load env vars - fix the syntax for dotenv config
-dotenv.config({ path: '../../.env' });
 
-// Debug to check if the environment variable is loaded correctly
+// get something from .env file to check if the env variables is loaded correctly
 console.log('MONGODB_URI:', process.env.MONGODB_URI);
 
 const dbConnect = require('./config/dbConnect');
@@ -60,6 +61,24 @@ app.use((req, res, next) => {
 app.use('/api/auth', authRoutes); // Authentication routes
 app.use('/api/roles', roleRoutes); // Role-based routes
 app.use('/api/detect', inferRoutes); //inference routes for image and video detection
+app.use('/api/profile', profileRoutes);
+app.use('/api/pinterest', pinterestRoutes); //for social media post
+app.use((req, res, next) => {
+    // Store current active users count in a global variable
+    global.activeUsers = global.activeUsers || 0;
+    
+    // Increment when a new request comes in (simple approximation)
+    global.activeUsers++;
+    
+    // Periodically decrease the count (this is a simple approach)
+    setTimeout(() => {
+        if (global.activeUsers > 0) {
+            global.activeUsers--;
+        }
+    }, 60000); // Decrease after 1 minute
+    
+    next();
+});
 // Error handling middleware - this should be the last middleware, do no re order this
 // This will catch any errors and return a 500 status code
 app.use((err, req, res, next) => {

@@ -1,20 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import './FileUpload.css';
+import { useDetection } from '../context/DetectionContext';
 
-const FileUpload = ({ onResults }) => {
+const FileUpload = () => {
   const [file, setFile] = useState(null);
   const [fileType, setFileType] = useState('image');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [userId, setUserId] = useState(null);
   const [result, setResult] = useState(null);
+  const { handleResults } = useDetection();
 
   useEffect(() => {
-    // Retrieve userId from localStorage
-    const storedUser = localStorage.getItem('user'); // Retrieve the full user object saved in localStorage
+    //retrieve userId from localStorage
+    const storedUser = localStorage.getItem('user'); //get the full user object saved in localStorage
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
-      setUserId(parsedUser.data._id); // See the response logged when logging in for more details
+      setUserId(parsedUser.data._id); //See the response logged when logging in for more details
     } else {
       setError('User is not logged in');
     }
@@ -72,7 +74,7 @@ const FileUpload = ({ onResults }) => {
       };
       
       setResult(resultData);
-      onResults(resultData);
+      handleResults(resultData);
     } catch (err) {
       setError(err.message);
     } finally {

@@ -1,0 +1,117 @@
+.profile-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .profile-header {
+    border-bottom: 1px solid #eaeaea;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .profile-header h2 {
+    color: #333;
+    margin-bottom: 5px;
+  }
+  
+  .profile-details {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+  }
+  
+  .profile-info, .profile-stats {
+    width: 48%;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+  }
+  
+  .profile-info h3, .profile-stats h3, .profile-history h3 {
+    margin-top: 0;
+    color: #444;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+  }
+  
+  .profile-info p, .profile-stats p {
+    margin: 8px 0;
+    line-height: 1.5;
+  }
+  
+  .profile-history {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 6px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+  }
+  
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .history-item.deepfake {
+    border-left: 4px solid #ff5252;
+  }
+  
+  .history-item.authentic {
+    border-left: 4px solid #4caf50;
+  }
+  
+  .history-date {
+    font-size: 0.9em;
+    color: #777;
+  }
+  
+  .history-result {
+    font-weight: bold;
+  }
+  
+  .history-feedback {
+    font-style: italic;
+    color: #555;
+  }
+  
+  .view-all-link {
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+    padding: 8px 0;
+    background-color: #f0f0f0;
+    color: #555;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+  }
+  
+  .view-all-link:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .profile-loading, .profile-error {
+    text-align: center;
+    padding: 30px;
+    font-size: 18px;
+  }
+  
+  .profile-error {
+    color: #d32f2f;
+  }

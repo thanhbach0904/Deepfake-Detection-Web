@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './RealTimeDetection.css';
+import { useDetection } from '../context/DetectionContext';
 
-const RealTimeDetection = ({ onResults }) => {
+const RealTimeDetection = () => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [isActive, setIsActive] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [detection, setDetection] = useState(null);
   const wsRef = useRef(null);
+  const { handleResults } = useDetection();
 
   // Setup webcam
   const setupWebcam = async () => {
@@ -45,10 +47,7 @@ const RealTimeDetection = ({ onResults }) => {
     wsRef.current.onmessage = (event) => {
       const data = JSON.parse(event.data);
       setDetection(data.result);
-      onResults({
-        ...data.result,
-        fileType: 'realtime'
-      });
+      handleResults(data.result);
     };
     
     return () => {

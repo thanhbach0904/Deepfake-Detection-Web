@@ -1,4 +1,5 @@
 const historyService = require('../services/historyService');
+const logService = require('../services/logService');
 
 const saveHistoryController = async (req, res, detectionData) => {
     try {
@@ -22,6 +23,15 @@ const saveHistoryController = async (req, res, detectionData) => {
         }
 
         const history = await historyService.saveHistory(userId, filePath, detectionResult);
+        await logService.createLog(
+            userId,
+            'detection',
+            req.ip,
+            { 
+                contentPath: filePath,
+                result: detectionResult
+            }
+        );
         res.status(201).json({
             success: true,
             result: {

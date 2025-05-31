@@ -12,7 +12,7 @@ router.post('/image', upload.single('file'), (req, res) => {
     const filePath = req.file.path;
 
     // Call the Python inference script for images
-    const pythonProcess = spawn('python', ['image_infer.py', filePath]);
+    const pythonProcess = spawn('python', ['inference/image_infer.py', filePath]);
 
     pythonProcess.stdout.on('data', (data) => {
         const result = JSON.parse(data.toString());

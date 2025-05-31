@@ -1,5 +1,5 @@
 // frontend/src/App.js
-import React, { useState } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import './App.css';
 import FileUpload from './components/FileUpload';
@@ -8,7 +8,11 @@ import Results from './components/Results';
 import Login from './components/Login';
 import Register from './components/Register';
 import History from './components/History';
+import UserProfile from './components/UserProfile'; 
+import AdminDashboard from './components/AdminDashboard';
+import PinterestFeed from './components/PinterestFeed';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { DetectionProvider, useDetection } from './context/DetectionContext';
 
 // Protected route component
 const ProtectedRoute = ({ children }) => {
@@ -25,32 +29,38 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
+// Admin route component
+const AdminRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return <div className="loading">Loading...</div>;
+  }
+  
+  if (!user || user.role !== 'admin') {
+    return <Navigate to="/" />;
+  }
+  
+  return children;
+};
+
 function AppContent() {
-  const [results, setResults] = useState(null);
-  const { user, login, logout } = useAuth();
-
-  const handleResults = (newResults) => {
-    setResults(newResults);
-  };
-
-  //clear the results after detected
-  const handleCloseResults = () => {
-    setResults(null);
-  };
+  const { user, logout } = useAuth();
+  const { results, clearResults } = useDetection();
 
   return (
     <div className="app">
       <header className="header">
         <h1>DeepFake Detector</h1>
         <nav>
-          <Link to="/">Upload Files</Link>
-          <Link to="/realtime">Real-time Detection</Link>
+          {user && <Link to="/pinterest">Pinterest Feed</Link>}
+          {user && <Link to="/">Upload Files</Link>}
+          {/*<Link to="/realtime">Real-time Detection</Link>*/}
           {user && <Link to="/history">History</Link>}
+          {user && <Link to="/profile">Profile</Link>}
+          {user && user.role === 'admin' && <Link to="/admin">Admin</Link>}
           {user ? (
-            <div className="user-menu">
-              <span className="username">{user.username}</span>
-              <button onClick={logout} className="logout-button">Logout</button>
-            </div>
+            <Link to="#" onClick={logout} className="nav-link logout-link">Logout</Link>
           ) : (
             <Link to="/login">Login</Link>
           )}
@@ -64,13 +74,19 @@ function AppContent() {
           
           <Route path="/" element={
             <ProtectedRoute>
-              <FileUpload onResults={handleResults} />
+              <FileUpload />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/pinterest" element={
+            <ProtectedRoute>
+              <PinterestFeed />
             </ProtectedRoute>
           } />
           
           <Route path="/realtime" element={
             <ProtectedRoute>
-              <RealTimeDetection onResults={handleResults} />
+              <RealTimeDetection />
             </ProtectedRoute>
           } />
           
@@ -79,10 +95,21 @@ function AppContent() {
               <History />
             </ProtectedRoute>
           } />
+
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <UserProfile />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/admin" element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          } />
         </Routes>
 
-        {/* Pass the onClose function to the Results component */}
-        {results && <Results results={results} onClose={handleCloseResults} />}
+        {results && <Results results={results} onClose={clearResults} />}
       </main>
 
       <footer className="footer">
@@ -96,7 +123,9 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <AppContent />
+        <DetectionProvider>
+          <AppContent />
+        </DetectionProvider>
       </AuthProvider>
     </Router>
   );

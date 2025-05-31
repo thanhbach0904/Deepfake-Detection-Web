@@ -1,0 +1,219 @@
+.admin-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .admin-header {
+    border-bottom: 1px solid #eaeaea;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .admin-header h2 {
+    color: #333;
+    margin-bottom: 5px;
+  }
+  
+  .admin-content {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .user-list-container {
+    width: 25%;
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    padding: 15px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+  }
+  
+  .user-list-container h3 {
+    margin-top: 0;
+    color: #444;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+  }
+  
+  .user-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 500px;
+    overflow-y: auto;
+  }
+  
+  .user-list-item {
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 4px;
+    border-left: 3px solid transparent;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s;
+  }
+  
+  .user-list-item:hover {
+    border-left-color: #2196f3;
+    background-color: #f0f7ff;
+  }
+  
+  .user-list-item.selected {
+    border-left-color: #2196f3;
+    background-color: #e3f2fd;
+  }
+  
+  .user-list-name {
+    font-weight: 500;
+  }
+  
+  .user-list-role {
+    font-size: 0.8em;
+    color: #666;
+    text-transform: uppercase;
+  }
+  
+  .user-history-container {
+    width: 75%;
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    padding: 15px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+  }
+  
+  .user-history-header {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .user-history-header h3 {
+    margin: 0;
+    color: #444;
+  }
+  
+  .history-filters {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .filter-group label {
+    font-weight: 500;
+    color: #555;
+  }
+  
+  .filter-group select,
+  .filter-group input {
+    padding: 6px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+  }
+  
+  .user-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 500px;
+    overflow-y: auto;
+  }
+  
+  .history-item {
+    background-color: #fff;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+  
+  .history-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: #f5f5f5;
+  }
+  
+  .history-item.deepfake .history-item-header {
+    border-left: 4px solid #ff5252;
+  }
+  
+  .history-item.authentic .history-item-header {
+    border-left: 4px solid #4caf50;
+  }
+  
+  .history-date {
+    font-size: 0.9em;
+    color: #777;
+  }
+  
+  .history-result {
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+  }
+  
+  .history-result.deepfake {
+    background-color: rgba(255, 82, 82, 0.1);
+    color: #ff5252;
+  }
+  
+  .history-result.authentic {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: #4caf50;
+  }
+  
+  .history-item-details {
+    padding: 15px;
+  }
+  
+  .history-content,
+  .history-feedback {
+    margin-bottom: 10px;
+  }
+  
+  .history-feedback {
+    font-style: italic;
+    color: #555;
+  }
+  
+  .select-user-prompt {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    color: #777;
+    font-size: 16px;
+  }
+  
+  .admin-loading,
+  .history-loading,
+  .admin-error,
+  .no-history {
+    text-align: center;
+    padding: 30px;
+    font-size: 16px;
+    color: #666;
+  }
+  
+  .admin-error {
+    color: #d32f2f;
+  }
