@@ -1,96 +1,38 @@
 import json
 import sys
-import cv2
+import warnings
 import torch
+from torch import nn
+import cv2
 import torch.nn as nn
 import torch.nn.functional as F
-import warnings
-from torchvision import transforms
 from PIL import Image
+import torchvision.models as models
+from torchvision.models import ResNet50_Weights
+from torchvision import transforms
+import os
 warnings.filterwarnings("ignore") #ignore all unecessary warnings to focus on important informations
 
-num_classes = 2
-img_size = 224
-base_transform = transforms.Compose([
-    transforms.Resize((img_size, img_size)),
-    transforms.ToTensor()
-])
-
-class CNNClassification(nn.Module):
-    def __init__(self,num_classes):
-        super(CNNClassification, self).__init__()
+class ResNet50Classifier(nn.Module):
+    def __init__(self, num_classes=2, pretrained=True):
+        super(ResNet50Classifier, self).__init__()
+        if pretrained:
+            self.backbone = models.resnet50(weights=ResNet50_Weights.IMAGENET1K_V2)
+        else:
+            self.backbone = models.resnet50(weights=None)
         
-        self.CNN_Model = nn.Sequential(
-            # Block 1: Two Conv layers + Pooling
-            nn.Conv2d(3, 32, kernel_size=3, padding=1),
-            nn.BatchNorm2d(32),
+        # Replace the final fully connected layer
+        in_features = self.backbone.fc.in_features
+        self.backbone.fc = nn.Sequential(
+            nn.Dropout(0.5),
+            nn.Linear(in_features, 512),
             nn.ReLU(),
-            nn.Conv2d(32, 32, kernel_size=3, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.MaxPool2d(2, stride=2),  # Output: 112x112x32
-
-            # Block 2: Two Conv layers + Pooling
-            nn.Conv2d(32, 64, kernel_size=3, padding=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.Conv2d(64, 64, kernel_size=3, padding=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.MaxPool2d(2, stride=2),  # Output: 56x56x64
-
-            # Block 3: Three Conv layers + Pooling
-            nn.Conv2d(64, 128, kernel_size=3, padding=1),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.Conv2d(128, 128, kernel_size=3, padding=1),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.Conv2d(128, 128, kernel_size=3, padding=1),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.MaxPool2d(2, stride=2),  # Output: 28x28x128
-
-            # Block 4: Three Conv layers + Pooling
-            nn.Conv2d(128, 256, kernel_size=3, padding=1),
-            nn.BatchNorm2d(256),
-            nn.ReLU(),
-            nn.Conv2d(256, 256, kernel_size=3, padding=1),
-            nn.BatchNorm2d(256),
-            nn.ReLU(),
-            nn.Conv2d(256, 256, kernel_size=3, padding=1),
-            nn.BatchNorm2d(256),
-            nn.ReLU(),
-            nn.MaxPool2d(2, stride=2),  # Output: 14x14x256
-
-            # Block 5: Three Conv layers + Pooling with 256 filters
-            nn.Conv2d(256, 256, kernel_size=3, padding=1),
-            nn.BatchNorm2d(256),
-            nn.ReLU(),
-            nn.Conv2d(256, 256, kernel_size=3, padding=1),
-            nn.BatchNorm2d(256),
-            nn.ReLU(),
-            nn.Conv2d(256, 256, kernel_size=3, padding=1),
-            nn.BatchNorm2d(256),
-            nn.ReLU(),
-            nn.MaxPool2d(2, stride=2),  # Output: 7x7x256
-
-
-            nn.Flatten(),  
             nn.Dropout(0.3),
-            nn.Linear(256 * 7 * 7, 2048),  
-            nn.ReLU(),
-            nn.Dropout(0.5),
-            nn.Linear(2048, 1024),
-            nn.ReLU(),
-            nn.Dropout(0.5),
-            nn.Linear(1024, num_classes) 
+            nn.Linear(512, num_classes)
         )
-
+    
     def forward(self, x):
-        return self.CNN_Model(x)
-
-Cnn_model = CNNClassification(num_classes= num_classes)
+        return self.backbone(x)
 device = (
     "cuda"
     if torch.cuda.is_available()
@@ -98,10 +40,22 @@ device = (
     if torch.backends.mps.is_available()
     else "cpu"
 )
-Cnn_model.to(device)
-checkpoint = torch.load(r"C:\Users\dmin\HUST\20242\Project2\Deepfake-Detection-Web-main\backend\inference\Deepfake_Detection_Image_80accu.pth")
-Cnn_model.load_state_dict(checkpoint)
-_ = Cnn_model.eval()
+num_classes = 2
+img_size = 224
+base_transform = transforms.Compose([
+    transforms.Resize((img_size, img_size)),
+    transforms.ToTensor()
+])
+
+model = ResNet50Classifier(num_classes=num_classes, pretrained=False)
+model.to(device)
+file_dir = os.path.dirname(os.path.abspath(__file__))
+model_name = "cifake_resNet_98.45.pth"
+model_path = os.path.join(file_dir, model_name)
+checkpoint = torch.load(model_path)
+
+model.load_state_dict(checkpoint)
+_ = model.eval()
 
 def infer_image(file_path):
     image = cv2.imread(file_path)
@@ -112,7 +66,7 @@ def infer_image(file_path):
     transformed_image = transformed_image.to(device)
 
     with torch.no_grad():
-        outputs = Cnn_model(transformed_image)
+        outputs = model(transformed_image)
         probabilities = F.softmax(outputs, dim=1)
         real_probability = probabilities[0][1].item() #class 1 is 'real'
         fake_probability = probabilities[0][0].item() #class 0 is 'fake'

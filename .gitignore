@@ -120,7 +120,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
+
 .venv
 env/
 venv/
@@ -166,7 +166,7 @@ build/
 dist/
 
 # Ignore environment files
-.env
+
 .venv
 env/
 venv/
@@ -212,6 +212,6 @@ Thumbs.db
 *.bak
 *.old
 *.orig
-*.json
+
 uploads/
 .vscode

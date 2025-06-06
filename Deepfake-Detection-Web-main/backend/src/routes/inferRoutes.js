@@ -5,26 +5,50 @@ const { spawn } = require('child_process');
 const path = require('path');
 const { saveHistoryController } = require('../controllers/historyControllers');
 const History = require('../models/historyModel'); // Added missing import
-
+const historyService = require('../services/historyService')
 const backendDir = path.resolve(__dirname, '../../');
 
 router.post('/image', upload.single('file'), (req, res) => {
-    const filePath = req.file.path;
+  const filePath = req.file.path;
+  const userId = req.body.userId;
 
-    // Call the Python inference script for images
-    const pythonProcess = spawn('python', ['inference/image_infer.py', filePath]);
+  // Call the Python inference script for images
+  const pythonProcess = spawn('python', ['inference/image_infer.py', filePath]);
 
-    pythonProcess.stdout.on('data', (data) => {
-        const result = JSON.parse(data.toString());
-        const detectionResult = result.fake_probability > result.real_probability ? 'deepfake' : 'authentic';
+  pythonProcess.stdout.on('data', (data) => {
+      try {
+          const result = JSON.parse(data.toString());
+          const detectionResult = result.fake_probability > result.real_probability ? 'deepfake' : 'authentic';
+          
+          // Send response directly to client first
+          res.status(201).json({
+              success: true,
+              result: {
+                  ...result,
+                  detectionResult
+              }
+          });
+          
+          //due to error in the way this file send res to frontend and save, 
+          //i will save the result directly without passing to the controllers
+          historyService.saveHistory(userId, filePath, detectionResult)
+              .then(() => {
+                  console.log('History saved successfully');
+              })
+              .catch(err => {
+                  console.error('Error saving history:', err);
+              });
+              
+      } catch (err) {
+          console.error('Error processing detection:', err);
+          res.status(500).json({ error: 'Error processing image' });
+      }
+  });
 
-        saveHistoryController(req, res, detectionResult);
-    });
-
-    pythonProcess.stderr.on('data', (data) => {
-        console.error(`Error: ${data}`);
-        res.status(500).send('Error processing image');
-    });
+  pythonProcess.stderr.on('data', (data) => {
+      console.error(`Error: ${data}`);
+      res.status(500).send('Error processing image');
+  });
 });
 
 router.post('/video', upload.single('file'), (req, res) => {
