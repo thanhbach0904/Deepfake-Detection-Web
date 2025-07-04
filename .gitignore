@@ -215,3 +215,4 @@ Thumbs.db
 
 uploads/
 .vscode
+.env

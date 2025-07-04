@@ -51,10 +51,10 @@ function AppContent() {
   return (
     <div className="app">
       <header className="header">
-        <h1>DeepFake Detector</h1>
+        <h1>Pinterest with AI DETECTION</h1>
         <nav>
           {user && <Link to="/pinterest">Pinterest Feed</Link>}
-          {user && <Link to="/">Upload Files</Link>}
+          {user && <Link to="/">Single File Detection</Link>}
           {/*<Link to="/realtime">Real-time Detection</Link>*/}
           {user && <Link to="/history">History</Link>}
           {user && <Link to="/profile">Profile</Link>}

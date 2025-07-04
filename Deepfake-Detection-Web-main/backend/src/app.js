@@ -33,7 +33,7 @@ const roleRoutes = require('./routes/roleRoutes'); // Import role routes
 const inferRoutes = require('./routes/inferRoutes')
 const profileRoutes = require('./routes/profileRoutes');
 const pinterestRoutes = require('./routes/pinterestRoutes');
-
+const bookmarkRoutes = require('./routes/bookmarkRoutes');
 
 // get something from .env file to check if the env variables is loaded correctly
 console.log('MONGODB_URI:', process.env.MONGODB_URI);
@@ -63,6 +63,7 @@ app.use('/api/roles', roleRoutes); // Role-based routes
 app.use('/api/detect', inferRoutes); //inference routes for image and video detection
 app.use('/api/profile', profileRoutes);
 app.use('/api/pinterest', pinterestRoutes); //for social media post
+app.use('/api/bookmarks', bookmarkRoutes);
 app.use((req, res, next) => {
     // Store current active users count in a global variable
     global.activeUsers = global.activeUsers || 0;

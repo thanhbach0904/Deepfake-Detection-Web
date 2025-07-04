@@ -6,6 +6,8 @@ const PinDetailModal = ({ pin, onClose }) => {
   const modalRef = useRef(null);
   const [pinData, setPinData] = useState(pin);
   const [hasLiked, setHasLiked] = useState(false);
+  const [hasBookmarked, setHasBookmarked] = useState(false);
+  const [bookmarkCount, setBookmarkCount] = useState(0);
   const { getAuthHeaders, user } = useAuth();
   
   useEffect(() => {
@@ -45,7 +47,45 @@ const PinDetailModal = ({ pin, onClose }) => {
     if (user && pin.likes) {
       setHasLiked(pin.likedBy?.includes(user._id) || false);
     }
+
+    // Check bookmark status and count when pin changes
+    if (pin && user) {
+      checkBookmarkStatus();
+      getBookmarkCount();
+    }
   }, [pin, user]);
+
+  const checkBookmarkStatus = async () => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/bookmarks/status/${pinData._id}`, {
+        method: 'GET',
+        headers: getAuthHeaders()
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        setHasBookmarked(result.data.isBookmarked);
+      }
+    } catch (error) {
+      console.error('Error checking bookmark status:', error);
+    }
+  };
+
+  const getBookmarkCount = async () => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/bookmarks/count/${pinData._id}`, {
+        method: 'GET',
+        headers: getAuthHeaders()
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        setBookmarkCount(result.data.count);
+      }
+    } catch (error) {
+      console.error('Error getting bookmark count:', error);
+    }
+  };
   
   const handleImageClick = async () => {
     try {
@@ -105,6 +145,35 @@ const PinDetailModal = ({ pin, onClose }) => {
       console.error('Error updating likes:', error);
     }
   };
+
+  const handleBookmarkClick = async () => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/bookmarks/toggle/${pinData._id}`, {
+        method: 'POST',
+        headers: {
+          ...getAuthHeaders(),
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        const newBookmarkStatus = result.data.bookmarked;
+        
+        setHasBookmarked(newBookmarkStatus);
+        
+        // Update bookmark count locally
+        setBookmarkCount(prevCount => 
+          newBookmarkStatus ? prevCount + 1 : Math.max(0, prevCount - 1)
+        );
+        
+        // Show success message (you can implement a toast notification here)
+        console.log(result.message);
+      }
+    } catch (error) {
+      console.error('Error toggling bookmark:', error);
+    }
+  };
   
   if (!pinData) return null;
   
@@ -125,7 +194,7 @@ const PinDetailModal = ({ pin, onClose }) => {
             />
             
             {pinData.aiDetection?.isAIGenerated && (
-              <div className="ai-badge modal-badge">🤖 AI Generated</div>
+              <div className="ai-badge modal-badge">This image is likely AI-Generated</div>
             )}
           </div>
           
@@ -149,38 +218,33 @@ const PinDetailModal = ({ pin, onClose }) => {
               </div>
             )}
             
+            <div className="pin-modal-actions">
+              <button 
+                className={`action-button like-button ${hasLiked ? 'liked' : ''}`}
+                onClick={handleLikeClick}
+              >
+                <span className="action-icon">❤️</span>
+                <span className="action-text">
+                  {hasLiked ? 'Liked' : 'Like'} ({pinData.likes || 0})
+                </span>
+              </button>
+              
+              <button 
+                className={`action-button bookmark-button ${hasBookmarked ? 'bookmarked' : ''}`}
+                onClick={handleBookmarkClick}
+              >
+                <span className="action-icon">🔖</span>
+                <span className="action-text">
+                  {hasBookmarked ? 'Bookmarked' : 'Bookmark'} ({bookmarkCount})
+                </span>
+              </button>
+            </div>
+            
             <div className="pin-modal-stats">
               <div className="pin-stat">
                 👁️ {pinData.views || 0} views
               </div>
-              <div className="pin-stat like-button" onClick={handleLikeClick}>
-                <span style={{ 
-                  cursor: 'pointer', 
-                  color: hasLiked ? 'red' : 'inherit',
-                  fontWeight: hasLiked ? 'bold' : 'normal'
-                }}>
-                  ❤️ {pinData.likes || 0} likes
-                </span>
-              </div>
             </div>
-            
-            {pinData.aiDetection?.isAIGenerated && (
-              <div className="pin-modal-ai-info">
-                <h3>AI Detection Information</h3>
-                <div className="ai-detection-meter">
-                  <div className="meter-label">AI Confidence:</div>
-                  <div className="meter-bar">
-                    <div 
-                      className="meter-fill"
-                      style={{width: `${Math.round(pinData.aiDetection.confidence * 100)}%`}}
-                    ></div>
-                  </div>
-                  <div className="meter-value">
-                    {Math.round(pinData.aiDetection.confidence * 100)}%
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>

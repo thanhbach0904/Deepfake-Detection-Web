@@ -19,6 +19,10 @@ const PinterestFeed = () => {
   const [aiDetectionStatus, setAiDetectionStatus] = useState(null);
   const [detectionResult, setDetectionResult] = useState(null);
   
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [userFeedback, setUserFeedback] = useState(null); // 'yes', 'no', or null
+  const [showConfirmationMessage, setShowConfirmationMessage] = useState(false);
+  const [userDisputedAI, setUserDisputedAI] = useState(false);
   // Filter state
   const [filters, setFilters] = useState({
     hideAI: false,
@@ -114,11 +118,29 @@ const PinterestFeed = () => {
     const file = e.dataTransfer.files[0];
     handleFileSelect(file);
   }, []);
-
+  const getUserId = () => {
+    if (user?.data?._id) return user.data._id;
+    if (user?._id) return user._id;
+    
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        return parsedUser?.data?._id;
+      } catch (e) {
+        console.error('Failed to parse user from localStorage:', e);
+      }
+    }
+    return null;
+};
   const runAIDetection = async (file) => {
     try {
       setAiDetectionStatus('checking');
       setDetectionResult(null);
+      setShowFeedback(false);
+      setUserFeedback(null);
+      setShowConfirmationMessage(false);
+      setUserDisputedAI(false);
 
       const userId = getUserId();
       if (!userId) {
@@ -148,6 +170,11 @@ const PinterestFeed = () => {
       const isAIGenerated = result.fake_probability > result.real_probability;
       setAiDetectionStatus(isAIGenerated ? 'ai-generated' : 'authentic');
       
+      // Show feedback if AI is detected
+      if (isAIGenerated) {
+        setShowFeedback(true);
+      }
+      
     } catch (err) {
       console.error('AI detection error:', err);
       setAiDetectionStatus('error');
@@ -155,21 +182,17 @@ const PinterestFeed = () => {
     }
   };
 
-  const getUserId = () => {
-    if (user?.data?._id) return user.data._id;
-    if (user?._id) return user._id;
+  const handleFeedback = (response) => {
+    setUserFeedback(response);
+    setShowFeedback(false);
     
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        return parsedUser?.data?._id;
-      } catch (e) {
-        console.error('Failed to parse user from localStorage:', e);
-      }
+    if (response === 'no') {
+      setUserDisputedAI(true);
+      setAiDetectionStatus('disputed'); // New status for disputed AI detection
     }
-    return null;
   };
+
+// ... existing code ...
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -177,6 +200,15 @@ const PinterestFeed = () => {
     if (!selectedFile || !title.trim()) {
       setError('Please provide both an image and a title');
       return;
+    }
+
+    // Show confirmation message if user disputed AI detection
+    if (userDisputedAI) {
+      setShowConfirmationMessage(true);
+      // Hide message after 3 seconds
+      setTimeout(() => {
+        setShowConfirmationMessage(false);
+      }, 3000);
     }
   
     setUploading(true);
@@ -192,10 +224,11 @@ const PinterestFeed = () => {
       // Add AI detection data if available
       if (detectionResult) {
         formData.append('aiDetection', JSON.stringify({
-          isAIGenerated: aiDetectionStatus === 'ai-generated',
+          isAIGenerated: userDisputedAI ? false : aiDetectionStatus === 'ai-generated',
           confidence: Math.max(detectionResult.fake_probability, detectionResult.real_probability),
           fakeProbability: detectionResult.fake_probability,
-          realProbability: detectionResult.real_probability
+          realProbability: detectionResult.real_probability,
+          userDisputed: userDisputedAI
         }));
       }
   
@@ -229,6 +262,10 @@ const PinterestFeed = () => {
     setTags('');
     setAiDetectionStatus(null);
     setDetectionResult(null);
+    setShowFeedback(false);
+    setUserFeedback(null);
+    setShowConfirmationMessage(false);
+    setUserDisputedAI(false);
     setError(null);
   };
 
@@ -283,10 +320,10 @@ const PinterestFeed = () => {
 
   const getDetectionStatusText = (status) => {
     switch (status) {
-      case 'checking': return '🔄 Analyzing for AI content...';
-      case 'ai-generated': return '🤖 AI-Generated Content Detected';
-      case 'authentic': return '✅ Original Content';
-      case 'error': return '❌ Could not analyze content';
+      case 'checking': return 'Please wait for content analyze ...';
+      case 'ai-generated': return 'AI-Generated Content Detected';
+      case 'authentic': return 'Original Content';
+      case 'error': return 'Could not analyze content';
       default: return '';
     }
   };
@@ -305,7 +342,7 @@ const PinterestFeed = () => {
     <div className="pinterest-container">
       {/* Header */}
       <div className="pinterest-header">
-        <h1 className="pinterest-title">📌 Image Gallery</h1>
+        <h1 className="pinterest-title">Image Gallery</h1>
         <div className="header-controls">
           <span>📊 {pins.length} pins</span>
         </div>
@@ -342,7 +379,7 @@ const PinterestFeed = () => {
             className="file-input"
           />
 
-          {aiDetectionStatus && (
+{aiDetectionStatus && (
             <div className={`ai-detection-status ${aiDetectionStatus}`}>
               {getDetectionStatusText(aiDetectionStatus)}
               {detectionResult && aiDetectionStatus === 'ai-generated' && (
@@ -350,6 +387,40 @@ const PinterestFeed = () => {
                   Confidence: {Math.round(detectionResult.fake_probability * 100)}%
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Feedback System */}
+          {showFeedback && (
+            <div className="feedback-container">
+              <div className="feedback-question">
+                <h4>AI Detection Feedback</h4>
+                <p>Our system detected this image as AI-generated. Is this correct?</p>
+              </div>
+              <div className="feedback-buttons">
+                <button 
+                  className="feedback-btn feedback-yes"
+                  onClick={() => handleFeedback('yes')}
+                >
+                  Yes
+                </button>
+                <button 
+                  className="feedback-btn feedback-no"
+                  onClick={() => handleFeedback('no')}
+                >
+                  No, my image is not AI
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Confirmation Message */}
+          {showConfirmationMessage && (
+            <div className="confirmation-message">
+              <div className="confirmation-content">
+                <h4>Thank you for your feedback</h4>
+                <p>Sorry for the inconvenience, we will check your image again and give you the result as soon as possible.</p>
+              </div>
             </div>
           )}
 
@@ -379,7 +450,7 @@ const PinterestFeed = () => {
             className="upload-button"
             disabled={uploading || !selectedFile || !title.trim()}
           >
-            {uploading ? '🔄 Uploading...' : '📌 Post It!'}
+            {uploading ? 'Uploading...' : 'Post !'}
           </button>
         </form>
       </div>

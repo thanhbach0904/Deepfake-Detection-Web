@@ -60,7 +60,7 @@ const MasonryGrid = ({ pins, onPinClick }) => {
               onClick={() => onPinClick(pin)}
             >
               {pin.aiDetection?.isAIGenerated && (
-                <div className="ai-badge">🤖 AI</div>
+                <div className="ai-badge">AI</div>
               )}
               
               <img
@@ -87,7 +87,7 @@ const MasonryGrid = ({ pins, onPinClick }) => {
                 {pin.tags && pin.tags.length > 0 && (
                   <div className="masonry-tags">
                     {pin.aiDetection?.isAIGenerated && (
-                      <span className="masonry-tag ai-tag">🤖 AI-GEN</span>
+                      <span className="masonry-tag ai-tag">AI</span>
                     )}
                     {pin.tags.map((tag, index) => (
                       <span key={index} className="masonry-tag">#{tag}</span>
@@ -113,7 +113,7 @@ const MasonryGrid = ({ pins, onPinClick }) => {
                   </span>
                   {pin.aiDetection?.isAIGenerated && (
                     <span className="masonry-stat">
-                      🤖 {Math.round(pin.aiDetection.confidence * 100)}%
+                      
                     </span>
                   )}
                 </div>
