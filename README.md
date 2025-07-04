@@ -1,51 +1,9 @@
-Folder structure of the project:
-```
-deepfake-detection-web/
-|
-├── app/                        # All application code here
-│   ├── backend/ 
-│   │   │── src/                   
-│   │   │   ├── config/         # Stores configuration (e.g., database connection, environment variables)
-│   │   │   ├── controllers/    # Receives requests -> passes them to the appropriate service -> returns response to the client
-│   │   │   ├── middleware/     # Middleware functions (e.g., validation, logging, error handling)
-│   │   │   ├── models/         # Defines objects schemas 
-│   │   │   ├── routes/         # Specifies API endpoints to call corresponding controller functions
-│   │   │   ├── services/       # Called by cointroller to handle business logic 
-│   │   │   └── index.js        # Entry point for the backend application
-│   │   │
-│   │   │── package.json        # Backend dependencies
-│   │   
-|   | 
-│   └── frontend/               # Contains all ReactJS frontend code
-│       ├── public/             # Static assets like index.html
-│       ├── src/                # Source code
-│       │   ├── assets/         # Images, fonts, etc.
-│       │   ├── components/     # Reusable UI pieces
-│       │   ├── pages/          # Full pages 
-│       │   ├── services/       # Functions to fetch data from the backend
-│       │   ├── styles/         # CSS/SCSS files
-│       │   ├── utils/          # Utility functions
-│       │   ├── App.js          # Main app component
-│       │   └── index.js        # Entry point
-│       ├── tests/              # Frontend tests
-│       └── package.json        # Frontend dependencies
-|
-├── .env                        
-├── docker-compose.yml         
-├── .gitignore                  
-├── README.md                   
-└── LICENSE                
-```
-
-
+# This is the application product of Nguyen Tien Thanh for HUST's PROJECT 2 course.
 
 
 
 
 Notes:
-
-
-
 
 # RUN
 
